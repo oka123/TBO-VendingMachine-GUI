@@ -7,6 +7,7 @@ from vending_machine_dfa import VendingMachineDFA
 import simpleaudio as sa
 from threading import Thread
 from itertools import count
+import os
 
 class App(ctk.CTk):
     def __init__(self):
@@ -38,10 +39,14 @@ class App(ctk.CTk):
         self.update_gui("Selamat datang! Silakan pilih es krim.")
 
     def load_assets(self):
+        # Mendapatkan direktori tempat file main.py ini berada
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        # Menggabungkan direktori skrip dengan nama folder aset
+        assets_path = os.path.join(script_dir, "assets")
         try:
-            self.product_images = {name: ctk.CTkImage(Image.open(f"assets/images/{name}.png"), size=(100, 80)) for name in self.vm_dfa.menu_prices}
-            self.money_images = {val: ctk.CTkImage(Image.open(f"assets/images/{val}.png"), size=(120, 50)) for val in [2000, 5000, 10000, 20000]}
-            self.notification_sound = sa.WaveObject.from_wave_file("assets/sounds/notification.wav")
+            self.product_images = {name: ctk.CTkImage(Image.open(os.path.join(assets_path, "images", f"{name}.png")), size=(100, 80)) for name in self.vm_dfa.menu_prices}
+            self.money_images = {val: ctk.CTkImage(Image.open(os.path.join(assets_path, "images", f"{val}.png")), size=(120, 50)) for val in [2000, 5000, 10000, 20000]}
+            self.notification_sound = sa.WaveObject.from_wave_file(os.path.join(assets_path, "sounds", "notification.wav"))
         except Exception as e:
             print(f"Error loading assets: {e}")
             self.destroy() # Keluar jika aset gagal dimuat

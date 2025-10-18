@@ -70,7 +70,7 @@ class App(ctk.CTk):
         self.product_buttons = {}
         for i, (name, price) in enumerate(self.vm_dfa.menu_prices.items()):
             image = self.product_images.get(name)
-            button = ctk.CTkButton(self.products_scroll_frame, text=f"{name}\nRp{price}", image=image, compound="top", fg_color="#1E1E1E", hover_color="#4A4A4A", font=("Arial", 14), command=lambda p=name: self.handle_input(p))
+            button = ctk.CTkButton(self.products_scroll_frame, text=f"{name}\nRp{price}", image=image, compound="top", fg_color="#1E1E1E", font=("Arial", 14), command=lambda p=name: self.handle_input(p))
             # button.grid(row=i//2, column=i%2, padx=10, pady=10, sticky="ew", ipady=10)
             self.product_buttons[name] = button
         
@@ -132,7 +132,7 @@ class App(ctk.CTk):
         self.money_buttons = {}
         for i, val in enumerate([2000, 5000, 10000, 20000]):
             image = self.money_images.get(val)
-            button = ctk.CTkButton(payment_frame, height=70, text="", image=image, fg_color="#1E1E1E", hover_color="#4A4A4A", command=lambda v=val: self.handle_input(v))
+            button = ctk.CTkButton(payment_frame, height=70, text="", image=image, fg_color="#1E1E1E", command=lambda v=val: self.handle_input(v))
             button.grid(row=(i//2)+1, column=i%2, padx=5, pady=5, sticky="ew")
             self.money_buttons[val] = button
 
@@ -144,10 +144,10 @@ class App(ctk.CTk):
         self.next_button = ctk.CTkButton(action_frame, height=50, text="Next", command=lambda: self.handle_input('Next'))
         self.next_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        self.cancel_button = ctk.CTkButton(action_frame, height=50, text="Cancel", fg_color="red", hover_color="#8B0000", command=lambda: self.handle_input('Cancel'))
+        self.cancel_button = ctk.CTkButton(action_frame, height=50, text="Cancel", fg_color="red", command=lambda: self.handle_input('Cancel'))
         self.cancel_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-        self.checkout_button = ctk.CTkButton(action_frame, height=50, text="Checkout", fg_color="green", hover_color="#006400", command=lambda: self.handle_input('Checkout'))
+        self.checkout_button = ctk.CTkButton(action_frame, height=50, text="Checkout", fg_color="green", command=lambda: self.handle_input('Checkout'))
         self.checkout_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
         money_slot = ctk.CTkFrame(action_frame, height=10, fg_color="black", border_width=2, border_color="grey")

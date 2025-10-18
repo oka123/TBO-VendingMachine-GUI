@@ -1,4 +1,28 @@
 gemini-1-fix/
 old/
-VMEsKrim/
+
+# Python bytecode
 __pycache__/
+commit-default/
+commit-gemini-1/
+commit-gemini-2/
+Experimental/
+gemini-1-fix/
+images/
+old/
+old2/
+VMEsKrim/
+
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env/
+
+# IDE files
+.idea/
+.vscode/

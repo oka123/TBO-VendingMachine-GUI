@@ -466,7 +466,7 @@ class App(ctk.CTk):
         self.notification_textbox.configure(state="disabled")
         self.update_gui("Selamat datang! Silakan pilih es krim.")
 
-        self.vm_dfa.current_state == 'Idle'
+        self.vm_dfa.current_state = 'Idle'
 
 if __name__ == "__main__":
     app = App()

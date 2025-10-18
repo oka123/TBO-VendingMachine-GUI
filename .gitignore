@@ -12,6 +12,7 @@ images/
 old/
 old2/
 VMEsKrim/
+main.exe
 
 *.pyc
 *.pyo

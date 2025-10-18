@@ -94,6 +94,11 @@ class App(ctk.CTk):
         self.cone_height = 80
         self.last_scoop_y = self.cone_y_bottom - self.cone_height
 
+        self.canvas_dispenser.create_text(
+            canvas_width / 2, canvas_height / 2,
+            text="[Area Dispenser]", fill="white", font=("Arial", 16)
+        )
+
         # --- FRAME KANAN (KONTROL) ---
         right_scroll_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
         right_scroll_frame.grid(row=0, column=1, padx=(0, 20), pady=20, sticky="nsew")
@@ -132,26 +137,29 @@ class App(ctk.CTk):
         self.money_buttons = {}
         for i, val in enumerate([2000, 5000, 10000, 20000]):
             image = self.money_images.get(val)
-            button = ctk.CTkButton(payment_frame, height=70, text="", image=image, fg_color="#1E1E1E", hover_color="#4A4A4A", command=lambda v=val: self.handle_input(v))
+            button = ctk.CTkButton(payment_frame, height=70, text=f"Rp{val}", image=image, compound="top", fg_color="#1E1E1E", hover_color="#4A4A4A", command=lambda v=val: self.handle_input(v))
             button.grid(row=(i//2)+1, column=i%2, padx=5, pady=5, sticky="ew")
             self.money_buttons[val] = button
 
         # Frame untuk Tombol Aksi
         action_frame = ctk.CTkFrame(right_scroll_frame)
         action_frame.pack(fill="x", expand=True, padx=5, pady=5)
-        action_frame.grid_columnconfigure((0, 1), weight=1)
+        action_frame.grid_columnconfigure((0, 1, 2), weight=1)
+
+        self.back_button = ctk.CTkButton(action_frame, height=50, text="Back", command=lambda: self.handle_input('Back'))
+        self.back_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         self.next_button = ctk.CTkButton(action_frame, height=50, text="Next", command=lambda: self.handle_input('Next'))
-        self.next_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        self.next_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
         self.cancel_button = ctk.CTkButton(action_frame, height=50, text="Cancel", fg_color="red", hover_color="#8B0000", command=lambda: self.handle_input('Cancel'))
-        self.cancel_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        self.cancel_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
         self.checkout_button = ctk.CTkButton(action_frame, height=50, text="Checkout", fg_color="green", hover_color="#006400", command=lambda: self.handle_input('Checkout'))
-        self.checkout_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        self.checkout_button.grid(row=1, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 
         money_slot = ctk.CTkFrame(action_frame, height=10, fg_color="black", border_width=2, border_color="grey")
-        money_slot.grid(row=2, column=0, columnspan=2, padx=40, pady=10, sticky="ew")
+        money_slot.grid(row=2, column=0, columnspan=3, padx=40, pady=10, sticky="ew")
 
         # Frame untuk Kembalian
         self.change_frame = ctk.CTkFrame(right_scroll_frame, height=0)
@@ -206,6 +214,7 @@ class App(ctk.CTk):
         for button in self.money_buttons.values():
             button.configure(state="normal" if state == 'WaitingForPayment' else "disabled")
 
+        self.back_button.configure(state="normal" if state == 'ToppingSelection' else "disabled")
         self.next_button.configure(state="normal" if state == 'IceCreamSelection' and self.vm_dfa.selected_items else "disabled")
         self.checkout_button.configure(state="normal" if state == 'ToppingSelection' else "disabled")
         self.cancel_button.configure(state="normal" if state not in ['Idle', 'ReturningChange', 'DispensingItem'] else "disabled")
@@ -425,16 +434,27 @@ class App(ctk.CTk):
         # Tahap 2: Jika tidak ada kombinasi pas, gunakan algoritma greedy sebagai fallback
         if bills_to_return is None:
             self.notification_textbox.configure(state="normal")
-            self.notification_textbox.insert("end", f"> PERINGATAN: Tidak dapat memberikan kembalian pas.\n")
+            self.notification_textbox.insert("end", f"> PERINGATAN: Tidak dapat memberikan kembalian pas. Mencoba memberikan kembalian terdekat.\n")
             self.notification_textbox.see("end")
             self.notification_textbox.configure(state="disabled")
 
             # Algoritma greedy untuk memberikan kembalian semaksimal mungkin
             temp_amount = amount
+            returned_amount = 0
+            bills_to_return_greedy = []
             for d in denominations:
                 while temp_amount >= d:
-                    change_images.append(self.money_images[d])
+                    bills_to_return_greedy.append(d)
                     temp_amount -= d
+                    returned_amount += d
+
+            if returned_amount < amount:
+                self.notification_textbox.configure(state="normal")
+                self.notification_textbox.insert("end", f"> PERINGATAN: Hanya dapat mengembalikan Rp {returned_amount}. Sisa Rp {amount - returned_amount} tidak dapat dikembalikan.\n")
+                self.notification_textbox.see("end")
+                self.notification_textbox.configure(state="disabled")
+
+            change_images = [self.money_images[bill] for bill in bills_to_return_greedy]
         else:
             # Jika kombinasi pas ditemukan, gunakan hasilnya
             change_images = [self.money_images[bill] for bill in bills_to_return]
@@ -465,8 +485,6 @@ class App(ctk.CTk):
         self.notification_textbox.delete("1.0", "end")
         self.notification_textbox.configure(state="disabled")
         self.update_gui("Selamat datang! Silakan pilih es krim.")
-
-        self.vm_dfa.current_state == 'Idle'
 
 if __name__ == "__main__":
     app = App()

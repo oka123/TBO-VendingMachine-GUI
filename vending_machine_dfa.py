@@ -16,7 +16,7 @@ class VendingMachineDFA:
             'Caramel': 2000,
             'Sprinkles': 2000
         }
-        self.alphabet = set(self.menu_prices.keys()) | {'Next', 'Checkout', 'Cancel'} | {2000, 5000, 10000, 20000}
+        self.alphabet = set(self.menu_prices.keys()) | {'Next', 'Checkout', 'Cancel', 'Back'} | {2000, 5000, 10000, 20000}
         
         self.reset()
 
@@ -63,6 +63,9 @@ class VendingMachineDFA:
                 self.selected_items.append(input_symbol)
                 self.total_price += self.menu_prices[input_symbol]
                 output = f"'{input_symbol}' ditambahkan. Total: Rp {self.total_price}."
+            elif input_symbol == 'Back':
+                self.current_state = 'IceCreamSelection'
+                output = "Kembali ke pemilihan es krim."
             elif input_symbol == 'Checkout':
                 if not self.selected_items:
                     output = "Keranjang kosong. Pesanan dibatalkan."

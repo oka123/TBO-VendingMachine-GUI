@@ -94,6 +94,11 @@ class App(ctk.CTk):
         self.cone_height = 80
         self.last_scoop_y = self.cone_y_bottom - self.cone_height
 
+        self.canvas_dispenser.create_text(
+            canvas_width / 2, canvas_height / 2,
+            text="[Area Dispenser]", fill="white", font=("Arial", 16)
+        )
+
         # --- FRAME KANAN (KONTROL) ---
         right_scroll_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
         right_scroll_frame.grid(row=0, column=1, padx=(0, 20), pady=20, sticky="nsew")
@@ -132,7 +137,7 @@ class App(ctk.CTk):
         self.money_buttons = {}
         for i, val in enumerate([2000, 5000, 10000, 20000]):
             image = self.money_images.get(val)
-            button = ctk.CTkButton(payment_frame, height=70, text="", image=image, fg_color="#1E1E1E", hover_color="#4A4A4A", command=lambda v=val: self.handle_input(v))
+            button = ctk.CTkButton(payment_frame, height=70, text=f"Rp{val}", image=image, compound="top", fg_color="#1E1E1E", hover_color="#4A4A4A", command=lambda v=val: self.handle_input(v))
             button.grid(row=(i//2)+1, column=i%2, padx=5, pady=5, sticky="ew")
             self.money_buttons[val] = button
 
@@ -425,16 +430,27 @@ class App(ctk.CTk):
         # Tahap 2: Jika tidak ada kombinasi pas, gunakan algoritma greedy sebagai fallback
         if bills_to_return is None:
             self.notification_textbox.configure(state="normal")
-            self.notification_textbox.insert("end", f"> PERINGATAN: Tidak dapat memberikan kembalian pas.\n")
+            self.notification_textbox.insert("end", f"> PERINGATAN: Tidak dapat memberikan kembalian pas. Mencoba memberikan kembalian terdekat.\n")
             self.notification_textbox.see("end")
             self.notification_textbox.configure(state="disabled")
 
             # Algoritma greedy untuk memberikan kembalian semaksimal mungkin
             temp_amount = amount
+            returned_amount = 0
+            bills_to_return_greedy = []
             for d in denominations:
                 while temp_amount >= d:
-                    change_images.append(self.money_images[d])
+                    bills_to_return_greedy.append(d)
                     temp_amount -= d
+                    returned_amount += d
+
+            if returned_amount < amount:
+                self.notification_textbox.configure(state="normal")
+                self.notification_textbox.insert("end", f"> PERINGATAN: Hanya dapat mengembalikan Rp {returned_amount}. Sisa Rp {amount - returned_amount} tidak dapat dikembalikan.\n")
+                self.notification_textbox.see("end")
+                self.notification_textbox.configure(state="disabled")
+
+            change_images = [self.money_images[bill] for bill in bills_to_return_greedy]
         else:
             # Jika kombinasi pas ditemukan, gunakan hasilnya
             change_images = [self.money_images[bill] for bill in bills_to_return]
